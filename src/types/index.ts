@@ -3,8 +3,10 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react
 import { Download, Upload } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { AdBanner } from '../src/components/AdBanner';
+import { GameCard } from '../src/components/GameCard';
 import { gameData } from '../src/data/gameData';
 import { useClearDataStorage } from '../src/hooks/useStorage';
+import { calculateGameAchievement } from '../src/utils/achievements';
 import { createAndShareBackup } from '../src/utils/backup';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
@@ -69,6 +71,18 @@ export default function HomeScreen() {
     }
   };
 
+  const renderGameItem = ({ item }: { item: Game }) => {
+    const achievement = calculateGameAchievement(item, clearData);
+    
+    return (
+      <GameCard 
+        game={item}
+        achievement={achievement}
+        onPress={() => handleGameSelect(item)}
+      />
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={[
@@ -83,18 +97,7 @@ export default function HomeScreen() {
         <FlatList
           data={gameData}
           keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.gameCard}
-              onPress={() => handleGameSelect(item)}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.gameTitle}>{item.title}</Text>
-              <Text style={styles.gameInfo}>
-                {item.leagues.length}リーグ / {item.machines.length}マシン
-              </Text>
-            </TouchableOpacity>
-          )}
+          renderItem={renderGameItem}
         />
         
         <View style={styles.buttonContainer}>
@@ -148,26 +151,11 @@ const styles = StyleSheet.create({
     color: '#60A5FA', // blue-400
     marginBottom: 16,
   },
-  gameCard: {
-    backgroundColor: '#1E40AF', // blue-800
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-  },
-  gameTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  gameInfo: {
-    fontSize: 14,
-    color: '#D1D5DB', // gray-300
-    marginTop: 4,
-  },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 16,
+    marginBottom: 8,
   },
   button: {
     backgroundColor: '#4338CA', // indigo-700
