@@ -1,26 +1,78 @@
-// src/components/Header.tsx の内容
+// src/components/Header.tsx の改善版
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform, StatusBar } from 'react-native';
 import { ArrowLeft } from 'lucide-react-native';
 
-interface HeaderProps {
+export interface HeaderProps {
+  /**
+   * ヘッダーに表示するメインタイトル
+   */
   title: string;
+  
+  /**
+   * オプションのサブタイトル（タイトルの下に表示）
+   */
   subtitle?: string;
+  
+  /**
+   * 戻るボタンを表示するかどうか
+   */
   showBackButton?: boolean;
+  
+  /**
+   * 戻るボタンが押されたときのコールバック関数
+   */
   onBackPress?: () => void;
+  
+  /**
+   * ヘッダーの背景色（デフォルトは青色）
+   */
+  backgroundColor?: string;
 }
 
-export const Header = ({ title, subtitle, showBackButton, onBackPress }: HeaderProps) => {
+export const Header: React.FC<HeaderProps> = ({ 
+  title, 
+  subtitle, 
+  showBackButton = false, 
+  onBackPress,
+  backgroundColor = '#1E3A8A' // blue-900のデフォルト値
+}) => {
+  // iOSの場合はステータスバーの高さを考慮
+  const statusBarHeight = Platform.OS === 'ios' ? StatusBar.currentHeight || 0 : 0;
+  
+  // 戻るボタンクリック時の処理
+  const handleBackPress = () => {
+    if (onBackPress) {
+      onBackPress();
+    }
+  };
+  
   return (
-    <View style={styles.header}>
+    <View style={[
+      styles.header, 
+      { backgroundColor, paddingTop: statusBarHeight + 16 }
+    ]}>
       {showBackButton && (
-        <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
+        <TouchableOpacity 
+          onPress={handleBackPress} 
+          style={styles.backButton}
+          accessibilityRole="button"
+          accessibilityLabel="戻る"
+        >
           <ArrowLeft size={20} color="#93C5FD" /> 
           <Text style={styles.backText}>戻る</Text>
         </TouchableOpacity>
       )}
-      <Text style={styles.title}>{title}</Text>
-      {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+      
+      <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
+        {title}
+      </Text>
+      
+      {subtitle && (
+        <Text style={styles.subtitle} numberOfLines={1} ellipsizeMode="tail">
+          {subtitle}
+        </Text>
+      )}
     </View>
   );
 };
@@ -28,16 +80,24 @@ export const Header = ({ title, subtitle, showBackButton, onBackPress }: HeaderP
 const styles = StyleSheet.create({
   header: {
     padding: 16,
-    backgroundColor: '#1E3A8A', // Tailwindのblue-900相当
+    backgroundColor: '#1E3A8A', // blue-900
+    paddingBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 5,
   },
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
+    paddingVertical: 4, // タッチ領域を広げる
   },
   backText: {
-    color: '#93C5FD', // Tailwindのblue-300相当
+    color: '#93C5FD', // blue-300
     marginLeft: 4,
+    fontSize: 14,
   },
   title: {
     fontSize: 18,
@@ -46,7 +106,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 14,
-    color: '#D1D5DB', // Tailwindのgray-300相当
+    color: '#D1D5DB', // gray-300
     marginTop: 2,
   },
 });

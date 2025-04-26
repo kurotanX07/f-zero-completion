@@ -2,9 +2,8 @@ import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import mobileAds from 'react-native-google-mobile-ads';
-import Navigation from './navigation';
 
-export default function App() {
+export default function App({ children }) {
   useEffect(() => {
     // Google Mobile Adsの初期化
     mobileAds()
@@ -16,7 +15,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <Navigation />
+      {children}
       <StatusBar style="light" />
     </SafeAreaProvider>
   );
