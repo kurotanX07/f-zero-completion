@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { ArrowLeft, Info, Camera, User, Car, ArrowDown } from 'lucide-react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -16,18 +16,28 @@ const rankColors = {
   4: '#059669', // green-600
 };
 
+// Only F-ZERO X (2) and F-ZERO GX (3) have reverse mode
+const GAMES_WITH_REVERSE_MODE = [2, 3];
+
 export default function MatrixScreen() {
   const params = useLocalSearchParams<{ gameId: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   
   const gameId = parseInt(params.gameId || '1', 10);
-  const game = gameData.find(g => g.id === gameId) || gameData[0];
+  const game = useMemo(() => 
+    gameData.find(g => g.id === gameId) || gameData[0]
+  , [gameId]);
   
   const [clearData, setClearData] = useState<ClearData>({});
   const [showPilotNames, setShowPilotNames] = useState(false);
   const [reverseMode, setReverseMode] = useState(false);
   const { loadClearData, saveClearData } = useClearDataStorage();
+
+  // Check if the current game has reverse mode
+  const hasReverseMode = useMemo(() => 
+    GAMES_WITH_REVERSE_MODE.includes(game.id)
+  , [game.id]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -37,16 +47,16 @@ export default function MatrixScreen() {
     loadData();
   }, []);
 
-  // 変更があった場合に保存
+  // Save changes
   useEffect(() => {
     saveClearData(clearData);
   }, [clearData]);
 
-  const goToHome = () => {
+  const goToHome = useCallback(() => {
     router.push('/');
-  };
+  }, [router]);
 
-  const handleCombinationSelect = (machine: Machine, league: string) => {
+  const handleCombinationSelect = useCallback((machine: Machine, league: string) => {
     router.push({
       pathname: '/detail',
       params: { 
@@ -56,9 +66,9 @@ export default function MatrixScreen() {
         reverseMode: reverseMode ? 'true' : 'false'
       }
     });
-  };
+  }, [game.id, reverseMode, router]);
 
-  const handleMachineInfoSelect = (machine: Machine) => {
+  const handleMachineInfoSelect = useCallback((machine: Machine) => {
     router.push({
       pathname: '/machine-info',
       params: { 
@@ -66,25 +76,25 @@ export default function MatrixScreen() {
         machineName: encodeURIComponent(machine.name)
       }
     });
-  };
+  }, [game.id, router]);
 
-  const getCurrentRank = (game: Game, machine: Machine, league: string) => {
+  const getCurrentRank = useCallback((game: Game, machine: Machine, league: string) => {
     const key = `${game.id}-${machine.name}-${league}${reverseMode ? '-reverse' : ''}`;
     return clearData[key]?.rank || null;
-  };
+  }, [clearData, reverseMode]);
 
-  const hasScreenshot = (game: Game, machine: Machine, league: string) => {
+  const hasScreenshot = useCallback((game: Game, machine: Machine, league: string) => {
     const key = `${game.id}-${machine.name}-${league}${reverseMode ? '-reverse' : ''}`;
     return clearData[key]?.hasScreenshot || false;
-  };
+  }, [clearData, reverseMode]);
 
-  const toggleNameDisplay = () => {
+  const toggleNameDisplay = useCallback(() => {
     setShowPilotNames(!showPilotNames);
-  };
+  }, [showPilotNames]);
 
-  const toggleReverseMode = () => {
+  const toggleReverseMode = useCallback(() => {
     setReverseMode(!reverseMode);
-  };
+  }, [reverseMode]);
 
   return (
     <View style={styles.container}>
@@ -117,27 +127,29 @@ export default function MatrixScreen() {
               </Text>
             </TouchableOpacity>
             
-            <TouchableOpacity
-              style={[
-                styles.controlButton,
-                reverseMode && styles.activeControlButton
-              ]}
-              onPress={toggleReverseMode}
-              activeOpacity={0.7}
-            >
-              <ArrowDown size={14} color={reverseMode ? 'white' : '#93C5FD'} style={styles.buttonIcon} />
-              <Text style={[
-                styles.controlButtonText,
-                reverseMode && styles.activeButtonText
-              ]}>
-                リバース{reverseMode ? 'ON' : 'OFF'}
-              </Text>
-            </TouchableOpacity>
+            {hasReverseMode && (
+              <TouchableOpacity
+                style={[
+                  styles.controlButton,
+                  reverseMode && styles.activeControlButton
+                ]}
+                onPress={toggleReverseMode}
+                activeOpacity={0.7}
+              >
+                <ArrowDown size={14} color={reverseMode ? 'white' : '#93C5FD'} style={styles.buttonIcon} />
+                <Text style={[
+                  styles.controlButtonText,
+                  reverseMode && styles.activeButtonText
+                ]}>
+                  リバース{reverseMode ? 'ON' : 'OFF'}
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
         
         <Text style={styles.title}>{game.title}</Text>
-        {reverseMode && (
+        {reverseMode && hasReverseMode && (
           <Text style={styles.reverseText}>
             リバースモード: COMマシンを表彰台に立たせる縛りプレイ
           </Text>
@@ -145,13 +157,17 @@ export default function MatrixScreen() {
       </View>
       
       <ScrollView style={styles.content}>
-        <ScrollView horizontal>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View>
-            <View style={styles.tableHeader}>
-              <View style={styles.tableHeaderCell} />
+          <View style={styles.tableHeader}>
+              <View style={styles.tableMachineCell}>
+                <Text style={styles.tableHeaderText}>マシン</Text>
+              </View>
               {game.leagues.map(league => (
                 <View key={league} style={styles.tableHeaderCell}>
-                  <Text style={styles.tableHeaderText}>{league}</Text>
+                  <Text style={styles.tableHeaderText}>
+                    {league.replace(' Cup', '').replace(' Series', '')}
+                  </Text>
                 </View>
               ))}
             </View>
@@ -283,7 +299,7 @@ const styles = StyleSheet.create({
     borderColor: '#374151', // gray-700
   },
   tableHeaderCell: {
-    width: 80,
+    width: 60,  // Make league cells narrower
     paddingVertical: 8,
     paddingHorizontal: 4,
     alignItems: 'center',
@@ -292,6 +308,7 @@ const styles = StyleSheet.create({
   tableHeaderText: {
     color: '#D1D5DB', // gray-300
     fontSize: 12,
+    textAlign: 'center',
   },
   tableRow: {
     flexDirection: 'row',
@@ -299,7 +316,7 @@ const styles = StyleSheet.create({
     borderColor: '#374151', // gray-700
   },
   tableMachineCell: {
-    width: 80,
+    width: 120,  // Make machine/pilot cell wider
     paddingVertical: 8,
     paddingHorizontal: 4,
     borderRightWidth: 1,
@@ -319,7 +336,7 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   tableCell: {
-    width: 80,
+    width: 60,  // Make league cells narrower
     height: 40,
     alignItems: 'center',
     justifyContent: 'center',

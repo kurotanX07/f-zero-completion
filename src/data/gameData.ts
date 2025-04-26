@@ -498,7 +498,7 @@ export const gameData: Game[] = [
    {
     id: 4,
     title: 'F-ZERO: Maximum Velocity',
-    leagues: ['Pawn Cup', 'Knight Cup', 'Bishop Cup', 'Queen Cup'],
+    leagues: ['Pawn Series', 'Knight Series', 'Bishop Series', 'Queen Series'],
     machines: [
       { name: 'HOT VIOLET',     pilot: 'Megan',              specs: { body: 'D', boost: 'C', grip: 'B' }, description: '平均的な性能で初心者向け。瞬発力に優れるが装甲はやや脆い。' },
       { name: 'FIRE BALL',      pilot: 'Mickey Marcus',      specs: { body: 'B', boost: 'C', grip: 'C' }, description: '最高速が高く装甲も厚め。加速とコーナリングは並みだが扱いやすい。' },
