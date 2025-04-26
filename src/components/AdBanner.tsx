@@ -1,77 +1,27 @@
-// src/components/AdBanner.tsx の改善版
-import React, { useState } from 'react';
+// src/components/AdBanner.tsx
+import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
-import { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads';
 
-// 本番用広告IDの設定（env変数などで管理するとなおよい）
-const PRODUCTION_AD_UNIT_ID = 'ca-app-pub-xxxxxxxxxxxxxxxx/yyyyyyyyyy';
-
+// For development, we'll use a mock banner since the ads module is causing errors
 export interface AdBannerProps {
-  /**
-   * 広告の位置を底部に固定するかどうか
-   * デフォルトはfalse
-   */
   sticky?: boolean;
-  
-  /**
-   * カスタムの広告サイズ
-   * デフォルトはANCHORED_ADAPTIVE_BANNER
-   */
-  adSize?: BannerAdSize;
-  
-  /**
-   * 広告が読み込まれない場合のフォールバックビューを表示するかどうか
-   * デフォルトはtrue
-   */
   showFallback?: boolean;
 }
 
 export const AdBanner: React.FC<AdBannerProps> = ({
   sticky = false,
-  adSize = BannerAdSize.ANCHORED_ADAPTIVE_BANNER,
   showFallback = true
 }) => {
-  const [adLoaded, setAdLoaded] = useState(false);
-  const [adError, setAdError] = useState<string | null>(null);
-  
-  // 開発環境かどうかでIDを切り替え
-  const adUnitId = __DEV__ ? TestIds.BANNER : PRODUCTION_AD_UNIT_ID;
-  
-  // 広告読み込み失敗時のハンドラー
-  const handleAdFailedToLoad = (error: any) => {
-    console.error('Ad failed to load: ', error);
-    setAdError(error.message || 'Failed to load ad');
-    setAdLoaded(false);
-  };
-  
-  // 広告読み込み成功時のハンドラー
-  const handleAdLoaded = () => {
-    setAdLoaded(true);
-    setAdError(null);
-  };
-  
   return (
     <View style={[
       styles.container,
       sticky && styles.stickyContainer
     ]}>
-      <BannerAd
-        unitId={adUnitId}
-        size={adSize}
-        requestOptions={{
-          requestNonPersonalizedAdsOnly: false,
-        }}
-        onAdLoaded={handleAdLoaded}
-        onAdFailedToLoad={handleAdFailedToLoad}
-      />
-      
-      {!adLoaded && adError && showFallback && (
-        <View style={styles.fallbackContainer}>
-          <Text style={styles.fallbackText}>
-            {__DEV__ ? '広告テスト中...' : ''}
-          </Text>
-        </View>
-      )}
+      <View style={styles.fallbackContainer}>
+        <Text style={styles.fallbackText}>
+          広告スペース
+        </Text>
+      </View>
     </View>
   );
 };

@@ -5,10 +5,12 @@ import { Header } from '../src/components/Header';
 import { gameData } from '../src/data/gameData';
 import { AdBanner } from '../src/components/AdBanner';
 import { Game, Machine } from '../src/types';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function MachineInfoScreen() {
   const params = useLocalSearchParams<{ gameId: string; machineName: string }>();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   
   const gameId = parseInt(params.gameId || '1', 10);
   const machineName = decodeURIComponent(params.machineName || '');

@@ -1,6 +1,7 @@
-// src/components/Header.tsx の改善版
+// src/components/Header.tsx
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowLeft } from 'lucide-react-native';
 
 export interface HeaderProps {
@@ -37,8 +38,8 @@ export const Header: React.FC<HeaderProps> = ({
   onBackPress,
   backgroundColor = '#1E3A8A' // blue-900のデフォルト値
 }) => {
-  // iOSの場合はステータスバーの高さを考慮
-  const statusBarHeight = Platform.OS === 'ios' ? StatusBar.currentHeight || 0 : 0;
+  // SafeAreaの設定を取得
+  const insets = useSafeAreaInsets();
   
   // 戻るボタンクリック時の処理
   const handleBackPress = () => {
@@ -50,7 +51,11 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <View style={[
       styles.header, 
-      { backgroundColor, paddingTop: statusBarHeight + 16 }
+      { 
+        backgroundColor, 
+        // SafeAreaのtop値を使用して上部のスペースを確保
+        paddingTop: insets.top > 0 ? insets.top + 8 : 20
+      }
     ]}>
       {showBackButton && (
         <TouchableOpacity 
@@ -92,7 +97,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
-    paddingVertical: 4, // タッチ領域を広げる
+    paddingVertical: 8, // タッチ領域を拡大
+    paddingHorizontal: 4,
   },
   backText: {
     color: '#93C5FD', // blue-300

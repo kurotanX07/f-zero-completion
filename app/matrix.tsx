@@ -6,6 +6,7 @@ import { AdBanner } from '../src/components/AdBanner';
 import { useClearDataStorage } from '../src/hooks/useStorage';
 import { gameData } from '../src/data/gameData';
 import { ClearData, Game, Machine } from '../src/types';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const rankColors = {
   null: '#4B5563', // gray-600
@@ -18,6 +19,7 @@ const rankColors = {
 export default function MatrixScreen() {
   const params = useLocalSearchParams<{ gameId: string }>();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   
   const gameId = parseInt(params.gameId || '1', 10);
   const game = gameData.find(g => g.id === gameId) || gameData[0];
@@ -86,11 +88,15 @@ export default function MatrixScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[
+        styles.header, 
+        { paddingTop: insets.top > 0 ? insets.top + 16 : 20 }
+      ]}>
         <View style={styles.headerTop}>
           <TouchableOpacity 
             style={styles.backButton}
             onPress={goToHome}
+            activeOpacity={0.7}
           >
             <ArrowLeft size={20} color="#93C5FD" />
             <Text style={styles.backButtonText}>ホームに戻る</Text>
@@ -100,6 +106,7 @@ export default function MatrixScreen() {
             <TouchableOpacity
               style={styles.controlButton}
               onPress={toggleNameDisplay}
+              activeOpacity={0.7}
             >
               {showPilotNames ? 
                 <Car size={14} color="#93C5FD" style={styles.buttonIcon} /> : 
@@ -116,6 +123,7 @@ export default function MatrixScreen() {
                 reverseMode && styles.activeControlButton
               ]}
               onPress={toggleReverseMode}
+              activeOpacity={0.7}
             >
               <ArrowDown size={14} color={reverseMode ? 'white' : '#93C5FD'} style={styles.buttonIcon} />
               <Text style={[
@@ -153,6 +161,7 @@ export default function MatrixScreen() {
                 <TouchableOpacity 
                   style={styles.tableMachineCell}
                   onPress={() => handleMachineInfoSelect(machine)}
+                  activeOpacity={0.7}
                 >
                   <View style={styles.machineNameContainer}>
                     <Text style={styles.machineNameText} numberOfLines={1}>
@@ -174,6 +183,7 @@ export default function MatrixScreen() {
                         rank !== null && { backgroundColor: rankColors[rank as keyof typeof rankColors] }
                       ]}
                       onPress={() => handleCombinationSelect(machine, league)}
+                      activeOpacity={0.7}
                     >
                       <View style={styles.cellContent}>
                         {rank !== null ? (
@@ -215,11 +225,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
+    marginTop: 8,
   },
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 4,
   },
   backButtonText: {
     color: '#93C5FD', // blue-300
@@ -233,7 +246,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginLeft: 12,
-    paddingVertical: 4,
+    paddingVertical: 6,
     paddingHorizontal: 8,
     borderRadius: 4,
   },

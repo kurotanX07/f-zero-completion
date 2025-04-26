@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Header } from '../src/components/Header';
 import { gameData } from '../src/data/gameData';
 import { useClearDataStorage } from '../src/hooks/useStorage';
@@ -17,6 +18,7 @@ export default function DetailScreen() {
     reverseMode: string;
   }>();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   
   const gameId = parseInt(params.gameId || '1', 10);
   const machineName = decodeURIComponent(params.machineName || '');
@@ -163,6 +165,7 @@ export default function DetailScreen() {
                   currentRank === rank && styles.activeRankButton
                 ]}
                 onPress={() => setRank(rank)}
+                activeOpacity={0.7}
               >
                 <Text style={[
                   styles.rankButtonText,
@@ -189,6 +192,7 @@ export default function DetailScreen() {
               <TouchableOpacity
                 style={styles.deleteButton}
                 onPress={confirmRemoveScreenshot}
+                activeOpacity={0.7}
               >
                 <Trash size={16} color="white" style={{ marginRight: 8 }} />
                 <Text style={styles.deleteButtonText}>削除</Text>
@@ -199,6 +203,7 @@ export default function DetailScreen() {
               <TouchableOpacity
                 style={styles.screenshotButton}
                 onPress={() => addScreenshot('take')}
+                activeOpacity={0.7}
               >
                 <Camera size={16} color="white" style={{ marginRight: 8 }} />
                 <Text style={styles.screenshotButtonText}>写真を撮る</Text>
@@ -207,6 +212,7 @@ export default function DetailScreen() {
               <TouchableOpacity
                 style={styles.screenshotButton}
                 onPress={() => addScreenshot('pick')}
+                activeOpacity={0.7}
               >
                 <ImageIcon size={16} color="white" style={{ marginRight: 8 }} />
                 <Text style={styles.screenshotButtonText}>画像を選択</Text>
