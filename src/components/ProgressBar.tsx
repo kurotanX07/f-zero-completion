@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
 interface ProgressBarProps {
@@ -28,42 +28,54 @@ interface ProgressBarProps {
   label?: string;
 }
 
-export const ProgressBar: React.FC<ProgressBarProps> = ({
+// Using memo to prevent unnecessary re-renders
+const ProgressBar: React.FC<ProgressBarProps> = memo(({
   percentage,
   height = 8,
   color = '#3B82F6', // デフォルトはblue-500
   showLabel = false,
   label
 }) => {
-  // デバッグログ
-  console.log('ProgressBar render:', { percentage, height, color });
-  
   // パーセンテージが0-100の範囲内に収まるようにする
   const safePercentage = Math.max(0, Math.min(100, percentage));
+  
+  // Round percentage to avoid tiny rendering changes
+  const roundedPercentage = Math.round(safePercentage);
   
   return (
     <View style={styles.container}>
       <View style={[styles.baseBar, { height }]}>
-        <View 
-          style={[
-            styles.progressBar, 
-            { 
-              width: `${safePercentage}%`,
+        {roundedPercentage > 0 && (
+          <View 
+            style={{
+              width: `${roundedPercentage}%`,
               height,
-              backgroundColor: color
-            }
-          ]} 
-        />
+              backgroundColor: color,
+              borderRadius: 4,
+              position: 'absolute',
+              left: 0,
+              top: 0,
+            }} 
+          />
+        )}
       </View>
       
       {showLabel && (
         <Text style={styles.label}>
-          {label || `${Math.round(safePercentage)}%`}
+          {label || `${roundedPercentage}%`}
         </Text>
       )}
     </View>
   );
-};
+}, (prevProps, nextProps) => {
+  // Custom comparison function for memo
+  // Only re-render if rounded percentage or colors change
+  return (
+    Math.round(prevProps.percentage) === Math.round(nextProps.percentage) &&
+    prevProps.color === nextProps.color &&
+    prevProps.height === nextProps.height
+  );
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -74,9 +86,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#374151', // gray-700
     borderRadius: 4,
     overflow: 'hidden',
-  },
-  progressBar: {
-    borderRadius: 4,
+    position: 'relative',
   },
   label: {
     color: '#D1D5DB', // gray-300
@@ -85,3 +95,6 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   }
 });
+
+// Export with memo applied
+export { ProgressBar };

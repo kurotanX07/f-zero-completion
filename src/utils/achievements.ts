@@ -54,11 +54,17 @@ export interface GameAchievement {
  * ゲームごとの達成度を計算
  * @param game ゲーム情報
  * @param clearData クリアデータ
+ * @param includeReverse リバースモードをカウントに含めるかどうか (デフォルト: false)
  * @returns ゲームの達成度情報
  */
-export function calculateGameAchievement(game: Game, clearData: ClearData): GameAchievement {
-  // 総コース数の計算（マシン数 x リーグ数 x モード（通常+リバース））
-  const totalCourseCount = game.machines.length * game.leagues.length * 2; // 通常 + リバース
+export function calculateGameAchievement(
+  game: Game, 
+  clearData: ClearData, 
+  includeReverse: boolean = false
+): GameAchievement {
+  // 総コース数の計算（マシン数 x リーグ数）
+  // リバースモードを含める場合のみ * 2
+  const totalCourseCount = game.machines.length * game.leagues.length * (includeReverse ? 2 : 1);
   
   // 各ランクごとのカウント
   let rank1Count = 0;
@@ -66,7 +72,7 @@ export function calculateGameAchievement(game: Game, clearData: ClearData): Game
   let rank3Count = 0;
   let totalClearCount = 0;
   
-  // 全コース（通常+リバース）でループ
+  // 全コースでループ
   game.machines.forEach(machine => {
     game.leagues.forEach(league => {
       // 通常モード
@@ -90,24 +96,26 @@ export function calculateGameAchievement(game: Game, clearData: ClearData): Game
         }
       }
       
-      // リバースモード
-      const reverseKey = `${game.id}-${machine.name}-${league}-reverse`;
-      if (clearData[reverseKey]) {
-        const rank = clearData[reverseKey].rank;
-        if (rank === 1) {
-          rank1Count++;
-          rank2Count++;
-          rank3Count++;
-          totalClearCount++;
-        } else if (rank === 2) {
-          rank2Count++;
-          rank3Count++;
-          totalClearCount++;
-        } else if (rank === 3) {
-          rank3Count++;
-          totalClearCount++;
-        } else if (rank === 4) {
-          totalClearCount++;
+      // リバースモードは、includeReverse が true の場合のみカウント
+      if (includeReverse) {
+        const reverseKey = `${game.id}-${machine.name}-${league}-reverse`;
+        if (clearData[reverseKey]) {
+          const rank = clearData[reverseKey].rank;
+          if (rank === 1) {
+            rank1Count++;
+            rank2Count++;
+            rank3Count++;
+            totalClearCount++;
+          } else if (rank === 2) {
+            rank2Count++;
+            rank3Count++;
+            totalClearCount++;
+          } else if (rank === 3) {
+            rank3Count++;
+            totalClearCount++;
+          } else if (rank === 4) {
+            totalClearCount++;
+          }
         }
       }
     });

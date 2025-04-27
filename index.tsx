@@ -9,6 +9,7 @@ import { useClearDataStorage } from '../src/hooks/useStorage';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import { ClearData, Game } from '../src/types';
+import { calculateGameAchievement } from '../src/utils/achievements';
 
 // シンプルな進捗バーコンポーネント（直接定義）
 const SimpleProgressBar = ({ percentage, color }: { percentage: number, color: string }) => (
@@ -25,17 +26,30 @@ const SimpleProgressBar = ({ percentage, color }: { percentage: number, color: s
 // ゲームカードコンポーネント（直接定義）
 const SimpleGameCard = ({ 
   game, 
-  clearCount, 
-  totalCount, 
+  achievement,
   onPress 
 }: { 
   game: Game; 
-  clearCount: number;
-  totalCount: number;
+  achievement: {
+    rank1Count: number,
+    rank2Count: number,
+    rank3Count: number,
+    totalCount: number
+  };
   onPress: () => void; 
 }) => {
-  // 進捗率を計算
-  const percentage = totalCount > 0 ? (clearCount / totalCount) * 100 : 0;
+  // Calculate percentages
+  const rank1Percentage = achievement.totalCount > 0 
+    ? (achievement.rank1Count / achievement.totalCount) * 100 
+    : 0;
+  
+  const rank2Percentage = achievement.totalCount > 0 
+    ? (achievement.rank2Count / achievement.totalCount) * 100 
+    : 0;
+  
+  const rank3Percentage = achievement.totalCount > 0 
+    ? (achievement.rank3Count / achievement.totalCount) * 100 
+    : 0;
 
   return (
     <TouchableOpacity
@@ -51,13 +65,36 @@ const SimpleGameCard = ({
       </View>
       
       <View style={{ flex: 3, marginLeft: 8 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-          <Text style={{ color: '#D1D5DB', fontSize: 12, width: 40 }}>クリア:</Text>
+        {/* 1st Place Progress */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+          <Text style={{ color: '#F59E0B', fontSize: 12, width: 40 }}>1位:</Text>
           <View style={{ flex: 1, marginRight: 4 }}>
-            <SimpleProgressBar percentage={percentage} color="#059669" />
+            <SimpleProgressBar percentage={rank1Percentage} color="#F59E0B" />
           </View>
           <Text style={{ color: '#D1D5DB', fontSize: 10 }}>
-            {Math.round(percentage)}% ({clearCount}/{totalCount})
+            {Math.round(rank1Percentage)}% ({achievement.rank1Count}/{achievement.totalCount})
+          </Text>
+        </View>
+        
+        {/* 2nd Place Progress */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+          <Text style={{ color: '#9CA3AF', fontSize: 12, width: 40 }}>2位:</Text>
+          <View style={{ flex: 1, marginRight: 4 }}>
+            <SimpleProgressBar percentage={rank2Percentage} color="#9CA3AF" />
+          </View>
+          <Text style={{ color: '#D1D5DB', fontSize: 10 }}>
+            {Math.round(rank2Percentage)}% ({achievement.rank2Count}/{achievement.totalCount})
+          </Text>
+        </View>
+        
+        {/* 3rd Place Progress */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+          <Text style={{ color: '#B45309', fontSize: 12, width: 40 }}>3位:</Text>
+          <View style={{ flex: 1, marginRight: 4 }}>
+            <SimpleProgressBar percentage={rank3Percentage} color="#B45309" />
+          </View>
+          <Text style={{ color: '#D1D5DB', fontSize: 10 }}>
+            {Math.round(rank3Percentage)}% ({achievement.rank3Count}/{achievement.totalCount})
           </Text>
         </View>
       </View>
@@ -71,25 +108,42 @@ export default function HomeScreen() {
   const { loadClearData, saveClearData } = useClearDataStorage();
   const [clearData, setClearData] = useState<ClearData>({});
   
-  // テスト用のクリアデータカウント（各ゲーム用）
-  const [gameClearCounts, setGameClearCounts] = useState<{[key: number]: number}>({});
+  // ゲームごとの達成度データ
+  const [gameAchievements, setGameAchievements] = useState<{[key: number]: { 
+    rank1Count: number,
+    rank2Count: number,
+    rank3Count: number,
+    totalCount: number 
+  }>}({});
 
   useEffect(() => {
-    // データ読み込みと同時にテスト用のサンプルデータを作成
+    // データ読み込みと同時に各ゲームの達成度を計算
     const loadData = async () => {
       try {
         const data = await loadClearData();
         setClearData(data);
         
-        // サンプルの進捗データを作成（テスト用）
-        const counts: {[key: number]: number} = {};
+        // 各ゲームの達成度を計算
+        const achievements: {[key: number]: { 
+          rank1Count: number,
+          rank2Count: number,
+          rank3Count: number,
+          totalCount: number 
+        }} = {};
+        
         gameData.forEach(game => {
-          // ゲームごとにランダムなクリア数を設定
-          const totalCourses = game.machines.length * game.leagues.length * 2;
-          const cleared = Math.floor(Math.random() * totalCourses);
-          counts[game.id] = cleared;
+          // リバースモードを含めずに達成度を計算
+          const achievement = calculateGameAchievement(game, data, false);
+          
+          achievements[game.id] = {
+            rank1Count: achievement.rank1Count,
+            rank2Count: achievement.rank2Count,
+            rank3Count: achievement.rank3Count,
+            totalCount: achievement.totalCourseCount
+          };
         });
-        setGameClearCounts(counts);
+        
+        setGameAchievements(achievements);
         
       } catch (error) {
         console.error("Failed to load data:", error);
@@ -109,12 +163,14 @@ export default function HomeScreen() {
 
   const handleBackupData = async () => {
     try {
-      const success = await createAndShareBackup();
-      if (success) {
-        Alert.alert('成功', 'バックアップファイルを保存または共有できます');
-      } else {
-        Alert.alert('エラー', 'バックアップの作成に失敗しました');
-      }
+      const data = JSON.stringify(clearData);
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const fileUri = `${FileSystem.documentDirectory}fzero_backup_${timestamp}.json`;
+      
+      await FileSystem.writeAsStringAsync(fileUri, data);
+      await FileSystem.shareAsync(fileUri);
+      
+      Alert.alert('成功', 'バックアップファイルを保存または共有できます');
     } catch (error) {
       console.error('Backup error:', error);
       Alert.alert('エラー', 'バックアップ中に問題が発生しました');
@@ -137,26 +193,31 @@ export default function HomeScreen() {
       await saveClearData(parsedData);
       setClearData(parsedData);
       
+      // 達成度を再計算
+      const achievements: {[key: number]: { 
+        rank1Count: number,
+        rank2Count: number,
+        rank3Count: number,
+        totalCount: number 
+      }} = {};
+      
+      gameData.forEach(game => {
+        // リバースモードを含めずに達成度を再計算
+        const achievement = calculateGameAchievement(game, parsedData, false);
+        achievements[game.id] = {
+          rank1Count: achievement.rank1Count,
+          rank2Count: achievement.rank2Count,
+          rank3Count: achievement.rank3Count,
+          totalCount: achievement.totalCourseCount
+        };
+      });
+      
+      setGameAchievements(achievements);
+      
       Alert.alert('成功', 'データを復元しました');
     } catch (error) {
       console.error('Restore error:', error);
       Alert.alert('エラー', 'データの復元中にエラーが発生しました。ファイル形式が正しいか確認してください。');
-    }
-  };
-
-  // シンプルなバックアップ関数（既存のものと同様）
-  const createAndShareBackup = async () => {
-    try {
-      const data = JSON.stringify(clearData);
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const fileUri = `${FileSystem.documentDirectory}fzero_backup_${timestamp}.json`;
-      
-      await FileSystem.writeAsStringAsync(fileUri, data);
-      await FileSystem.shareAsync(fileUri);
-      return true;
-    } catch (error) {
-      console.error("Backup error:", error);
-      return false;
     }
   };
 
@@ -175,14 +236,17 @@ export default function HomeScreen() {
           data={gameData}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => {
-            const totalCourses = item.machines.length * item.leagues.length * 2;
-            const clearCount = gameClearCounts[item.id] || 0;
+            const achievement = gameAchievements[item.id] || { 
+              rank1Count: 0, 
+              rank2Count: 0,
+              rank3Count: 0,
+              totalCount: item.machines.length * item.leagues.length
+            };
             
             return (
               <SimpleGameCard
                 game={item}
-                clearCount={clearCount}
-                totalCount={totalCourses}
+                achievement={achievement}
                 onPress={() => handleGameSelect(item)}
               />
             );
