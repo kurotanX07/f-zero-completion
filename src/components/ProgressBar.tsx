@@ -35,6 +35,9 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   showLabel = false,
   label
 }) => {
+  // デバッグログ
+  console.log('ProgressBar render:', { percentage, height, color });
+  
   // パーセンテージが0-100の範囲内に収まるようにする
   const safePercentage = Math.max(0, Math.min(100, percentage));
   
