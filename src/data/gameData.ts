@@ -29,7 +29,7 @@ export const gameData: Game[] = [
       },
       {
         name: 'WILD GOOSE',
-        pilot: 'パイコ',
+        pilot: 'ピコ',
         specs: {
           boost: 'C',
           body: 'A',
