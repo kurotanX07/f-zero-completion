@@ -1,0 +1,171 @@
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, TextInput, ScrollView, Modal, FlatList, Dimensions, Platform } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Header } from '../src/components/Header';
+import { gameData } from '../src/data/gameData';
+import { gameDataEn } from '../src/data/gameDataEn';
+import { getCourseInfo, getGameCourses, getLeagueCourses, getDefaultLaps } from '../src/data/courseData';
+import { useClearDataStorage } from '../src/hooks/useStorage';
+import { useScreenshot } from '../src/hooks/useScreenshot';
+import { AdBanner } from '../src/components/AdBanner';
+import { ClearData, Game, Machine, Screenshot, RaceRecord } from '../src/types';
+import { Camera, ImageIcon, Trash, Clock, ChevronDown, Trophy, Plus, X, ChevronLeft, ChevronRight, ArrowLeft, Calendar } from 'lucide-react-native';
+import { useLanguage } from '../src/contexts/LanguageContext';
+import { useTheme } from '../src/contexts/ThemeContext';
+import { i18n } from '../src/i18n/translations';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+// @ts-ignore
+import { v4 as uuidv4 } from 'uuid';
+
+// 画面の幅を取得
+const { width: screenWidth } = Dimensions.get('window');
+
+// GrandPrixRecordインターフェースを直接定義（types.tsからインポートできない問題を解決）
+interface GrandPrixRecord {
+  id: string;
+  gameId: number;
+  machineName: string;
+  league: string;
+  reverseMode: boolean;
+  rank: number | null;
+  date: number;
+  racedAt: number; // グランプリ挑戦日時
+  totalTime: number;
+  courseTimes: CourseTime[];
+  screenshots: Screenshot[];
+  points?: number | null; // ポイント数（任意）
+  destroyedMachines?: number | null; // マシン破壊数（任意）
+}
+
+// 型安全なfindメソッドのためのutil関数
+const findCourseTime = (courseTimes: CourseTime[], courseId: number): CourseTime | undefined => {
+  return courseTimes.find(ct => ct.courseId === courseId);
+};
+
+// clearDataItemの型を拡張（grandPrixRecordsプロパティのため）
+interface ExtendedClearDataItem {
+  rank?: number | null;
+  overallRank?: number | null;
+  hasScreenshot?: boolean;
+  screenshotUri?: string;
+  lapTimes?: number[];
+  screenshots?: Screenshot[];
+  records?: RaceRecord[];
+  bestRecord?: RaceRecord;
+  grandPrixRecords?: GrandPrixRecord[];
+}
+
+// clearDataの型を拡張
+interface ExtendedClearData {
+  [key: string]: ExtendedClearDataItem;
+}
+
+// CourseTimeインターフェースをローカルで定義
+interface CourseTime {
+  courseId: number;
+  time: number;
+  rank: number | null;
+}
+
+const createStyles = (theme: any) => StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  content: {
+    padding: 4, // さらに削減してより広く
+    paddingHorizontal: 2, // 左右のパディングを最小に
+    paddingBottom: 60, // 広告スペース用の余白を確保
+  },
+  // スタイル定義は省略
+});
+
+// Expo Routerのためのデフォルトエクスポート
+export default function DetailScreen() {
+  const params = useLocalSearchParams<{
+    gameId: string;
+    machineName: string;
+    league: string;
+    courseId: string;
+    reverseMode: string;
+    mode: string;
+    action: string;
+    grandprixId: string;
+  }>();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { language } = useLanguage();
+  const { theme } = useTheme();
+  const { loadClearData, saveClearData } = useClearDataStorage();
+  
+  // デバイスの向きを検出
+  const [isLandscape, setIsLandscape] = useState(false);
+
+  // URLパラメータを解析
+  const gameId = parseInt(params.gameId || '1', 10);
+  const machineName = decodeURIComponent(params.machineName || 'Blue Falcon');
+  const league = decodeURIComponent(params.league || 'Knight League');
+  const courseId = parseInt(params.courseId || '1', 10);
+  const reverseMode = params.reverseMode === 'true';
+  const mode = params.mode || 'course';
+  const action = params.action || '';
+  const grandprixId = params.grandprixId || '';
+  
+  // 選択中のコースID
+  const [selectedCourseId, setSelectedCourseId] = useState(courseId);
+  
+  // タイムアタック関連の状態
+  const [currentRank, setCurrentRank] = useState<number | null>(null);
+  const [records, setRecords] = useState<RaceRecord[]>([]);
+  const [currentRecordIndex, setCurrentRecordIndex] = useState<number>(0);
+  const [showRecordHistory, setShowRecordHistory] = useState<boolean>(false);
+  const [currentOverallRank, setCurrentOverallRank] = useState<number | null>(null);
+  
+  // 総合順位の初期化
+  useEffect(() => {
+    // コンポーネントマウント時に初期化
+    console.log('DetailScreen mounted - currentOverallRankを初期化');
+    setCurrentOverallRank(null);
+  }, []);
+  
+  const { takeScreenshot, pickScreenshot } = useScreenshot();
+  const styles = useMemo(() => createStyles(theme), [theme]);
+  
+  // 基本データ
+  const [clearData, setClearData] = useState<ClearData>({});
+  const [availableCourses, setAvailableCourses] = useState<any[]>([]);
+  
+  // ラップタイム関連
+  const [totalLaps, setTotalLaps] = useState<number>(5);
+  const [lapTimes, setLapTimes] = useState<number[]>(Array(5).fill(0));
+  const [totalTime, setTotalTime] = useState<number>(0);
+  const [rankChanged, setRankChanged] = useState<boolean>(false); // 順位が変更されたかのフラグ
+  
+  // スクリーンショット関連
+  const [screenshots, setScreenshots] = useState<Screenshot[]>([]);
+  const [currentScreenshotIndex, setCurrentScreenshotIndex] = useState<number>(0);
+  const [screenshotViewerVisible, setScreenshotViewerVisible] = useState<boolean>(false);
+  
+  // モーダル表示関連
+  const [courseModalVisible, setCourseModalVisible] = useState<boolean>(false);
+  const [grandPrixRecordingMode, setGrandPrixRecordingMode] = useState<boolean>(false); // グランプリ記録モードフラグ
+  const [grandPrixFlowStep, setGrandPrixFlowStep] = useState<number>(0); // 0: 未開始, 1: 日時設定, 2: タイムアタック中, 3: 総合順位入力
+  const [grandPrixRacedAt, setGrandPrixRacedAt] = useState<number>(Date.now());
+  const [tempRacedAt, setTempRacedAt] = useState<number>(Date.now()); // 追加：日付選択モーダル用の一時的な日付保持
+  const [currentGrandPrixCourseTimes, setCurrentGrandPrixCourseTimes] = useState<CourseTime[]>([]);
+  const [grandPrixScreenshots, setGrandPrixScreenshots] = useState<Screenshot[]>([]);
+  const [grandPrixModalVisible, setGrandPrixModalVisible] = useState<boolean>(false);
+  const [grandPrixDateModalVisible, setGrandPrixDateModalVisible] = useState<boolean>(false); // 新しい日付選択モーダル用
+  
+  // 総合結果用の状態変数
+  const [isOverallResultMode, setIsOverallResultMode] = useState<boolean>(false);
+  const [overallPoints, setOverallPoints] = useState<number | null>(null);
+  const [destroyedMachines, setDestroyedMachines] = useState<number | null>(null);
+  
+  // 言語に基づいて適切なゲームデータを選択
+  const data = language === 'en' ? gameDataEn : gameData;
+  const game = data.find(g => g.id === gameId) || data[0];
+  const machine = game.machines.find(m => m.name === machineName) || game.machines[0];
+  
+  // 残りのコードは省略
+} 

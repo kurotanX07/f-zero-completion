@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
-import { Download, Upload } from 'lucide-react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { Settings } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AdBanner } from '../src/components/AdBanner';
-import { gameData } from '../src/data/gameData';
 import { useClearDataStorage } from '../src/hooks/useStorage';
-import * as DocumentPicker from 'expo-document-picker';
-import * as FileSystem from 'expo-file-system';
 import { ClearData, Game } from '../src/types';
 import { calculateGameAchievement } from '../src/utils/achievements';
+import { i18n } from '../src/i18n/translations';
+import { useLanguage } from '../src/contexts/LanguageContext';
+import { useTheme } from '../src/contexts/ThemeContext';
+import { getGameDataByLanguage } from '../src/data';
 
 // ゲーム達成度の型定義
 type GameAchievement = {
@@ -35,11 +36,13 @@ const SimpleProgressBar = ({ percentage, color }: { percentage: number; color: s
 const SimpleGameCard = ({ 
   game, 
   achievement,
-  onPress 
+  onPress,
+  theme 
 }: { 
   game: Game; 
   achievement: GameAchievement;
-  onPress: () => void; 
+  onPress: () => void;
+  theme: any;
 }) => {
   // Calculate percentages
   const rank1Percentage = achievement.totalCount > 0 
@@ -54,49 +57,52 @@ const SimpleGameCard = ({
     ? (achievement.rank3Count / achievement.totalCount) * 100 
     : 0;
 
+  // コンポーネント内でスタイルを作成
+  const cardStyles = createStyles(theme);
+
   return (
     <TouchableOpacity
-      style={styles.gameCard}
+      style={cardStyles.gameCard}
       onPress={onPress}
       activeOpacity={0.7}
     >
       <View style={{ flex: 2 }}>
-        <Text style={styles.gameTitle}>{game.title}</Text>
-        <Text style={styles.gameInfo}>
-          {game.leagues.length}リーグ / {game.machines.length}マシン
+        <Text style={cardStyles.gameTitle}>{game.title}</Text>
+        <Text style={cardStyles.gameInfo}>
+          {game.leagues.length}{i18n.t('home.league')} / {game.machines.length}{i18n.t('home.machine')}
         </Text>
       </View>
       
       <View style={{ flex: 3, marginLeft: 8 }}>
         {/* 1st Place Progress */}
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
-          <Text style={{ color: '#F59E0B', fontSize: 12, width: 40 }}>1位:</Text>
+          <Text style={{ color: theme.rankGold, fontSize: 12, width: 40 }}>{i18n.t('home.firstPlace')}:</Text>
           <View style={{ flex: 1, marginRight: 4 }}>
-            <SimpleProgressBar percentage={rank1Percentage} color="#F59E0B" />
+            <SimpleProgressBar percentage={rank1Percentage} color={theme.rankGold} />
           </View>
-          <Text style={{ color: '#D1D5DB', fontSize: 10 }}>
+          <Text style={{ color: theme.textSecondary, fontSize: 10 }}>
             {Math.round(rank1Percentage)}% ({achievement.rank1Count}/{achievement.totalCount})
           </Text>
         </View>
         
         {/* 2nd Place Progress */}
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
-          <Text style={{ color: '#9CA3AF', fontSize: 12, width: 40 }}>2位:</Text>
+          <Text style={{ color: theme.rankSilver, fontSize: 12, width: 40 }}>{i18n.t('home.secondPlace')}:</Text>
           <View style={{ flex: 1, marginRight: 4 }}>
-            <SimpleProgressBar percentage={rank2Percentage} color="#9CA3AF" />
+            <SimpleProgressBar percentage={rank2Percentage} color={theme.rankSilver} />
           </View>
-          <Text style={{ color: '#D1D5DB', fontSize: 10 }}>
+          <Text style={{ color: theme.textSecondary, fontSize: 10 }}>
             {Math.round(rank2Percentage)}% ({achievement.rank2Count}/{achievement.totalCount})
           </Text>
         </View>
         
         {/* 3rd Place Progress */}
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
-          <Text style={{ color: '#B45309', fontSize: 12, width: 40 }}>3位:</Text>
+          <Text style={{ color: theme.rankBronze, fontSize: 12, width: 40 }}>{i18n.t('home.thirdPlace')}:</Text>
           <View style={{ flex: 1, marginRight: 4 }}>
-            <SimpleProgressBar percentage={rank3Percentage} color="#B45309" />
+            <SimpleProgressBar percentage={rank3Percentage} color={theme.rankBronze} />
           </View>
-          <Text style={{ color: '#D1D5DB', fontSize: 10 }}>
+          <Text style={{ color: theme.textSecondary, fontSize: 10 }}>
             {Math.round(rank3Percentage)}% ({achievement.rank3Count}/{achievement.totalCount})
           </Text>
         </View>
@@ -108,11 +114,22 @@ const SimpleGameCard = ({
 export default function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { loadClearData, saveClearData } = useClearDataStorage();
+  const { loadClearData } = useClearDataStorage();
+  const { language } = useLanguage();
+  const { theme } = useTheme();
   const [clearData, setClearData] = useState<ClearData>({});
+  const [localGameData, setLocalGameData] = useState<Game[]>([]);
   
   // ゲームごとの達成度データ
   const [gameAchievements, setGameAchievements] = useState<Record<number, GameAchievement>>({});
+  
+  // テーマに基づいたスタイルを生成
+  const styles = createStyles(theme);
+
+  // 言語が変更されたときにゲームデータを更新
+  useEffect(() => {
+    setLocalGameData(getGameDataByLanguage(language));
+  }, [language]);
 
   useEffect(() => {
     // データ読み込みと同時に各ゲームの達成度を計算
@@ -124,7 +141,7 @@ export default function HomeScreen() {
         // 各ゲームの達成度を計算
         const achievements: Record<number, GameAchievement> = {};
         
-        gameData.forEach(game => {
+        localGameData.forEach(game => {
           // リバースモードを含めずに達成度を計算
           const achievement = calculateGameAchievement(game, data, false);
           
@@ -144,8 +161,10 @@ export default function HomeScreen() {
       }
     };
     
-    loadData();
-  }, []);
+    if (localGameData.length > 0) {
+      loadData();
+    }
+  }, [localGameData]);
 
   const handleGameSelect = (game: Game) => {
     router.push({
@@ -154,88 +173,30 @@ export default function HomeScreen() {
     });
   };
 
-  const handleBackupData = async () => {
-    try {
-      const success = await createAndShareBackup();
-      if (success) {
-        Alert.alert('成功', 'バックアップファイルを保存または共有できます');
-      } else {
-        Alert.alert('エラー', 'バックアップの作成に失敗しました');
-      }
-    } catch (error) {
-      console.error('Backup error:', error);
-      Alert.alert('エラー', 'バックアップ中に問題が発生しました');
-    }
-  };
-
-  const handleRestoreData = async () => {
-    try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: 'application/json',
-        copyToCacheDirectory: true,
-      });
-
-      if (result.canceled) return;
-      
-      const fileUri = result.assets[0].uri;
-      const content = await FileSystem.readAsStringAsync(fileUri);
-      const parsedData = JSON.parse(content);
-      
-      await saveClearData(parsedData);
-      setClearData(parsedData);
-      
-      // 達成度を再計算
-      const achievements: Record<number, GameAchievement> = {};
-      
-      gameData.forEach(game => {
-        // リバースモードを含めずに達成度を再計算
-        const achievement = calculateGameAchievement(game, parsedData, false);
-        achievements[game.id] = {
-          rank1Count: achievement.rank1Count,
-          rank2Count: achievement.rank2Count,
-          rank3Count: achievement.rank3Count,
-          totalCount: achievement.totalCourseCount
-        };
-      });
-      
-      setGameAchievements(achievements);
-      
-      Alert.alert('成功', 'データを復元しました');
-    } catch (error) {
-      console.error('Restore error:', error);
-      Alert.alert('エラー', 'データの復元中にエラーが発生しました。ファイル形式が正しいか確認してください。');
-    }
-  };
-
-  // シンプルなバックアップ関数（既存のものと同様）
-  const createAndShareBackup = async () => {
-    try {
-      const data = JSON.stringify(clearData);
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const fileUri = `${FileSystem.documentDirectory}fzero_backup_${timestamp}.json`;
-      
-      await FileSystem.writeAsStringAsync(fileUri, data);
-      await FileSystem.shareAsync(fileUri);
-      return true;
-    } catch (error) {
-      console.error("Backup error:", error);
-      return false;
-    }
+  const handleSettingsPress = () => {
+    router.push('/settings');
   };
 
   return (
     <View style={styles.container}>
       <View style={[
         styles.header,
-        { paddingTop: insets.top > 0 ? insets.top : 16 }
+        { paddingTop: insets.top > 0 ? insets.top : 12 } // 上部パディングを縮小
       ]}>
-        <Text style={styles.title}>F-ZERO クリア状況管理</Text>
+        <Text style={styles.title}>{i18n.t('home.title')}</Text>
+        <TouchableOpacity 
+          style={styles.settingsButton}
+          onPress={handleSettingsPress}
+          activeOpacity={0.7}
+        >
+          <Settings size={24} color="white" />
+        </TouchableOpacity>
       </View>
       
       <View style={styles.content}>
-        <Text style={styles.sectionTitle}>ゲームを選択</Text>
+        <Text style={styles.sectionTitle}>{i18n.t('home.selectGame')}</Text>
         <FlatList
-          data={gameData}
+          data={localGameData}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => {
             const achievement = gameAchievements[item.id] || { 
@@ -250,99 +211,77 @@ export default function HomeScreen() {
                 game={item}
                 achievement={achievement}
                 onPress={() => handleGameSelect(item)}
+                theme={theme}
               />
             );
           }}
           showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 60 }} // 広告のためのスペースを確保
         />
-        
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity 
-            style={styles.button}
-            onPress={handleBackupData}
-            activeOpacity={0.7}
-          >
-            <Download size={16} color="white" style={{ marginRight: 8 }} />
-            <Text style={styles.buttonText}>データバックアップ</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={styles.button}
-            onPress={handleRestoreData}
-            activeOpacity={0.7}
-          >
-            <Upload size={16} color="white" style={{ marginRight: 8 }} />
-            <Text style={styles.buttonText}>データ復元</Text>
-          </TouchableOpacity>
-        </View>
       </View>
       
-      <AdBanner />
+      <AdBanner sticky={true} /> {/* 広告を固定表示に変更 */}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+// スタイルはテーマに応じて生成
+const createStyles = (theme: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#111827', // gray-900
+    backgroundColor: theme.background,
   },
   header: {
-    padding: 16,
-    backgroundColor: '#1E3A8A', // blue-900
+    padding: 10, // 余白を小さく
+    paddingHorizontal: 12,
+    backgroundColor: theme.primaryDark,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center', // 中央揃えに変更
+    position: 'relative', // 相対配置に変更
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: 'white',
+    color: theme.text,
+    textAlign: 'center',
+  },
+  settingsButton: {
+    padding: 6, // タッチ領域を適度に
+    position: 'absolute', // 絶対配置に変更
+    right: 12, // 右端からの距離
+    top: '50%', // 上端からの距離
+    transform: [{ translateY: -12 }], // 垂直方向の中央揃え調整
   },
   content: {
     flex: 1,
-    padding: 16,
+    padding: 10, // 余白を小さく
+    paddingTop: 6,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#60A5FA', // blue-400
-    marginBottom: 16,
+    color: theme.accent,
+    marginBottom: 10, // 下部マージンを小さく
   },
   gameCard: {
-    backgroundColor: '#1E40AF', // blue-800
+    backgroundColor: theme.surface,
     borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-    flexDirection: 'row', // 水平レイアウト
+    padding: 12, // パディングを小さく
+    marginBottom: 12, // 下部マージンを小さく
+    flexDirection: 'row',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: theme.border,
   },
   gameTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: 'white',
+    color: theme.text,
   },
   gameInfo: {
     fontSize: 14,
-    color: '#D1D5DB', // gray-300
+    color: theme.textSecondary,
     marginTop: 4,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  button: {
-    backgroundColor: '#4338CA', // indigo-700
-    borderRadius: 8,
-    padding: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    marginHorizontal: 4,
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: '500',
   },
 });

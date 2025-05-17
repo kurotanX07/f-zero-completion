@@ -5,47 +5,79 @@ export const gameData: Game[] = [
   {
     id: 1,
     title: 'F-ZERO',
-    leagues: ['ナイト', 'クイーン', 'キング'],
+    leagues: ['Knight', 'Queen', 'King'],
     machines: [
       {
         name: 'BLUE FALCON',
         pilot: 'キャプテン・ファルコン',
-        specs: {
-          boost: 'B',
-          body: 'B',
-          grip: 'B'
+        specs: { 
+          body: 'B', 
+          boost: 'B', 
+          grip: 'B',
+          // 詳細スペック
+          topSpeed: 'A',
+          boostSpeed: 'B',
+          boostDuration: 'B',
+          bodyStrength: 'B',
+          cornering: 'B',
+          balance: 'A',
+          acceleration: 'B'
         },
-        description: 'バウンティハンターのキャプテン・ファルコンが操縦するマシン。バランスの取れた性能を持つ。'
+        description: 'バウンティハンターとして知られるキャプテン・ファルコンの愛機。非常にバランスの取れた性能で、初心者から上級者まで扱いやすい。強力なG-ディフューザーシステムにより、あらゆるコースで安定した走りを実現する。ファルコンは正義の使者として悪に立ち向かう一方で、F-ZEROグランプリでの優勝を目指している。'
       },
       {
         name: 'GOLDEN FOX',
-        pilot: 'Dr.スチュワート',
-        specs: {
-          boost: 'A',
-          body: 'C',
-          grip: 'A'
+        pilot: 'ドクター・スチュワート',
+        specs: { 
+          body: 'C', 
+          boost: 'A', 
+          grip: 'E',
+          // 詳細スペック
+          topSpeed: 'B',
+          boostSpeed: 'A',
+          boostDuration: 'A',
+          bodyStrength: 'C',
+          cornering: 'D',
+          balance: 'C',
+          acceleration: 'A'
         },
-        description: '天才医師Dr.スチュワートのマシン。加速とグリップに優れるが耐久性が低い。'
+        description: '天才外科医ロバート・スチュワートが操る金色の機体。父の遺志を継ぎF-ZEROレースに参戦。軽量で加速性能が高く、ブーストも強力だが、耐久性とコーナリング性能が低いハイリスク・ハイリターンなマシン。スチュワートは医師としての本業の傍ら、レースの賞金を医療研究に投じている。'
       },
       {
         name: 'WILD GOOSE',
         pilot: 'ピコ',
-        specs: {
-          boost: 'C',
-          body: 'A',
-          grip: 'B'
+        specs: { 
+          body: 'A', 
+          boost: 'D', 
+          grip: 'C', 
+          // 詳細スペック
+          topSpeed: 'A',
+          boostSpeed: 'D',
+          boostDuration: 'D',
+          bodyStrength: 'A',
+          cornering: 'C',
+          balance: 'B',
+          acceleration: 'D'
         },
-        description: '元宇宙海賊のパイコが操る頑丈なマシン。高い耐久性を持つが加速力に難がある。'
+        description: '元軍人で現在は傭兵として活動するピコのマシン。重量があり最高速度も高いが、加速に時間がかかる。ただし、その重量を活かした体当たりは他のマシンを弾き飛ばすほど。ピコの故郷デスボーンは過酷な環境で知られ、そこで培った耐久力と狡猾さを駆使してレースに挑む。'
       },
       {
         name: 'FIRE STINGRAY',
         pilot: 'サムライ・ゴロー',
-        specs: {
-          boost: 'A',
-          body: 'B',
-          grip: 'C'
+        specs: { 
+          body: 'B', 
+          boost: 'C', 
+          grip: 'A',
+          // 詳細スペック
+          topSpeed: 'A',
+          boostSpeed: 'C',
+          boostDuration: 'B',
+          bodyStrength: 'B',
+          cornering: 'A',
+          balance: 'B',
+          acceleration: 'C' 
         },
-        description: '日本人レーサー・サムライ・ゴローのマシン。高速直進性能に優れるがグリップが低い。'
+        description: '宇宙海賊と呼ばれるサムライ・ゴローの愛機。直線での最高速度は高く、コーナリング性能も優秀。ゴローはキャプテン・ファルコンのライバルであり、かつての親友。ファルコンへの複雑な感情を抱えながらも、F-ZEROグランプリでの勝利を目指し、時に正義のために行動する義賊としての一面も持つ。'
       }
     ]
   },
@@ -53,7 +85,7 @@ export const gameData: Game[] = [
   {
     id: 2,
     title: 'F-ZERO X',
-    leagues: ['ジャック', 'クイーン', 'キング', 'ジョーカー', 'エックス'],
+    leagues: ['Jack', 'Queen', 'King', 'Joker', 'X'],
     machines: [
       {
         name: 'RED GAZELLE',
@@ -95,7 +127,7 @@ export const gameData: Game[] = [
         name: 'BLUE FALCON',
         pilot: 'キャプテン・ファルコン',
         specs: { body: 'B', boost: 'C', grip: 'B' },
-        description: 'シリーズの顔とも言える万能マシン。クセのない操作性で初心者から上級者まで扱いやすい。まさに“青き鷹”。'
+        description: 'シリーズの顔とも言える万能マシン。クセのない操作性で初心者から上級者まで扱いやすい。まさに"青き鷹"。'
       },
       {
         name: 'DEEP CLAW',
@@ -243,7 +275,7 @@ export const gameData: Game[] = [
   {
     id: 3,
     title: 'F-ZERO GX',
-    leagues: ['ルビー', 'サファイア', 'エメラルド', 'ダイヤモンド', 'AX'],
+    leagues: ['Ruby', 'Sapphire', 'Emerald', 'Diamond', 'AX'],
     machines: [
       {
         name: 'RED GAZELLE',
@@ -430,7 +462,7 @@ export const gameData: Game[] = [
         name: 'DARK SCHNEIDER',
         pilot: 'Deathborn',
         specs: { body: 'A', boost: 'B', grip: 'D' },
-        description: '死神デスボーンの“漆黒の翼”。高耐久と良好な加速を持つが低グリップで曲がりが鈍い。'
+        description: '死神デスボーンの"漆黒の翼"。高耐久と良好な加速を持つが低グリップで曲がりが鈍い。'
       },
       {
         name: 'FAT SHARK',
@@ -498,18 +530,188 @@ export const gameData: Game[] = [
    {
     id: 4,
     title: 'F-ZERO: Maximum Velocity',
-    leagues: ['Pawn Series', 'Knight Series', 'Bishop Series', 'Queen Series'],
+    leagues: ['Pawn', 'Knight', 'Bishop', 'Queen'],
     machines: [
-      { name: 'HOT VIOLET',     pilot: 'Megan',              specs: { body: 'D', boost: 'C', grip: 'B' }, description: '平均的な性能で初心者向け。瞬発力に優れるが装甲はやや脆い。' },
-      { name: 'FIRE BALL',      pilot: 'Mickey Marcus',      specs: { body: 'B', boost: 'C', grip: 'C' }, description: '最高速が高く装甲も厚め。加速とコーナリングは並みだが扱いやすい。' },
-      { name: 'J.B. CRYSTAL',   pilot: 'Jane B. Christie',   specs: { body: 'D', boost: 'E', grip: 'C' }, description: '長時間ブーストが特徴。安定性は高いが最高速はワーストクラス。' },
-      { name: 'WIND WALKER',    pilot: 'Nichi',              specs: { body: 'E', boost: 'B', grip: 'A' }, description: '超軽量で旋回性能が抜群。紙装甲のため接触ダメージに注意。' },
-      { name: 'SLY JOKER',      pilot: 'Lord Cyber',         specs: { body: 'C', boost: 'A', grip: 'C' }, description: '最短3秒の超強力ブーストを持つ切り札。加速と耐久は平均的。' },
-      { name: 'SILVER THUNDER', pilot: 'Blitz Wagner',       specs: { body: 'A', boost: 'A', grip: 'D' }, description: '装甲・最高速ともトップ。曲がりにくく、ブースト持続も短い。' },
-      { name: 'THE STINGRAY',   pilot: 'Alexander O\'Neil',  specs: { body: 'B', boost: 'E', grip: 'C' }, description: '12秒という最長ブーストが武器。加速が遅く扱いには熟練を要する。' },
-      { name: 'FALCON MK-2',    pilot: 'Kent Akechi',        specs: { body: 'D', boost: 'C', grip: 'C' }, description: 'ブルーファルコン直系の改良機。バランス型だが装甲は薄い。' },
-      { name: 'FIGHTING COMET', pilot: 'Kumiko',             specs: { body: 'E', boost: 'D', grip: 'D' }, description: '最弱装甲だが 9 秒ブーストと高ジャンプ性能でショートカット向き。' },
-      { name: 'JET VERMILION',  pilot: 'Professor Yazoo Jr.',specs: { body: 'A', boost: 'B', grip: 'E' }, description: '装甲 100 & 強力ブーストを誇る隠し最強機。曲がらない暴れ馬。' }
+      { 
+        name: 'HOT VIOLET',
+        pilot: 'Megan',
+        specs: { 
+          body: 'D', 
+          boost: 'C', 
+          grip: 'B',
+          // 詳細スペック
+          topSpeed: 'C',
+          boostSpeed: 'C',
+          boostDuration: 'C',
+          bodyStrength: 'D',
+          cornering: 'B',
+          balance: 'B',
+          acceleration: 'B'
+        }, 
+        description: '平均的な性能で初心者向け。瞬発力に優れるが装甲はやや脆い。メーガンは元F-ZEROパイロットの娘で、若くして頭角を現した新世代のレーサー。母譲りの繊細なマシンコントロールと、強い精神力で難コースでも安定した走りを見せる。' 
+      },
+      { 
+        name: 'FIRE BALL',
+        pilot: 'Mickey Marcus',
+        specs: { 
+          body: 'B', 
+          boost: 'C', 
+          grip: 'C',
+          // 詳細スペック
+          topSpeed: 'A',
+          boostSpeed: 'C',
+          boostDuration: 'C',
+          bodyStrength: 'B',
+          cornering: 'C',
+          balance: 'B',
+          acceleration: 'C'
+        }, 
+        description: '最高速が高く装甲も厚め。加速とコーナリングは並みだが扱いやすい。ミッキー・マーカスは元軍のテストパイロットで、極限状態での操縦技術には定評がある。冷静な判断力と熱いレース魂を持ち合わせ、幅広いファンから支持を得ている。' 
+      },
+      { 
+        name: 'J.B. CRYSTAL',
+        pilot: 'Jane B. Christie',
+        specs: { 
+          body: 'D', 
+          boost: 'E', 
+          grip: 'C',
+          // 詳細スペック
+          topSpeed: 'D',
+          boostSpeed: 'D',
+          boostDuration: 'A+',
+          bodyStrength: 'D',
+          cornering: 'C',
+          balance: 'C',
+          acceleration: 'D'
+        }, 
+        description: '長時間ブーストが特徴。安定性は高いが最高速はワーストクラス。ジェーン・B・クリスティは名門レーサー家系の末裔。理論派として知られ、完璧な走行ラインの計算と燃料効率の良さを武器に、不利な条件でも巧みにレースをコントロールする。' 
+      },
+      { 
+        name: 'WIND WALKER',
+        pilot: 'Nichi',
+        specs: { 
+          body: 'E', 
+          boost: 'B', 
+          grip: 'A',
+          // 詳細スペック
+          topSpeed: 'B',
+          boostSpeed: 'B',
+          boostDuration: 'B',
+          bodyStrength: 'E',
+          cornering: 'A+',
+          balance: 'B',
+          acceleration: 'A'
+        }, 
+        description: '超軽量で旋回性能が抜群。紙装甲のため接触ダメージに注意。ニチは砂漠の遊牧民出身の若きレーサー。自然の風を読む特殊な能力を持ち、風のように軽やかな操縦で他のパイロットを翻弄する。わずかな接触でもマシンが大ダメージを受けるため、クリーンなレースが必須。' 
+      },
+      { 
+        name: 'SLY JOKER',
+        pilot: 'Lord Cyber',
+        specs: { 
+          body: 'C', 
+          boost: 'A', 
+          grip: 'C',
+          // 詳細スペック
+          topSpeed: 'B',
+          boostSpeed: 'A+',
+          boostDuration: 'D',
+          bodyStrength: 'C',
+          cornering: 'C',
+          balance: 'B',
+          acceleration: 'A'
+        }, 
+        description: '最短3秒の超強力ブーストを持つ切り札。加速と耐久は平均的。ロード・サイバーは謎に包まれたサイボーグレーサー。人間時代の記憶を失っているが、マシンとの一体感は群を抜いており、短時間で驚異的な加速を見せる。その正体については様々な噂が飛び交っている。' 
+      },
+      { 
+        name: 'SILVER THUNDER',
+        pilot: 'Blitz Wagner',
+        specs: { 
+          body: 'A', 
+          boost: 'A', 
+          grip: 'D',
+          // 詳細スペック
+          topSpeed: 'A+',
+          boostSpeed: 'A',
+          boostDuration: 'D',
+          bodyStrength: 'A',
+          cornering: 'D',
+          balance: 'D',
+          acceleration: 'C'
+        }, 
+        description: '装甲・最高速ともトップ。曲がりにくく、ブースト持続も短い。ブリッツ・ワグナーは元F-ZEROチャンピオンの息子。父の栄光を超えるべく、持ち前の度胸と圧倒的なパワーで他のマシンを威圧する激しい走りが特徴。テクニカルなコースでは苦戦することも。' 
+      },
+      { 
+        name: 'THE STINGRAY',
+        pilot: 'Alexander O\'Neil',
+        specs: { 
+          body: 'B', 
+          boost: 'E', 
+          grip: 'C',
+          // 詳細スペック
+          topSpeed: 'C',
+          boostSpeed: 'D',
+          boostDuration: 'A+',
+          bodyStrength: 'B',
+          cornering: 'C',
+          balance: 'C',
+          acceleration: 'E'
+        }, 
+        description: '12秒という最長ブーストが武器。加速が遅く扱いには熟練を要する。アレクサンダー・オニールは古参レーサーで戦略家として知られる。立ち上がりの遅さを補う長時間ブーストと経験に基づく燃料管理で、後半に力を発揮する粘り強いレース運びが持ち味。' 
+      },
+      { 
+        name: 'FALCON MK-2',
+        pilot: 'Kent Akechi',
+        specs: { 
+          body: 'D', 
+          boost: 'C', 
+          grip: 'C',
+          // 詳細スペック
+          topSpeed: 'B',
+          boostSpeed: 'B',
+          boostDuration: 'C',
+          bodyStrength: 'D',
+          cornering: 'C',
+          balance: 'A',
+          acceleration: 'B'
+        }, 
+        description: 'ブルーファルコン直系の改良機。バランス型だが装甲は薄い。ケント・アケチは伝説のパイロット、キャプテン・ファルコンを敬愛する若手レーサー。オリジナルのブルーファルコンを参考に設計したマシンで、バランスの良さを活かした柔軟なレーススタイルが特徴。' 
+      },
+      { 
+        name: 'JET VERMILION',
+        pilot: 'Hideo Otsuki',
+        specs: { 
+          body: 'C', 
+          boost: 'B', 
+          grip: 'D',
+          // 詳細スペック
+          topSpeed: 'A',
+          boostSpeed: 'B',
+          boostDuration: 'B',
+          bodyStrength: 'C',
+          cornering: 'D',
+          balance: 'C',
+          acceleration: 'B'
+        }, 
+        description: '最高速と加速が優れた赤いジェット機。ただしコーナーリングは苦手で直線番長タイプ。大手企業の御曹司ヒデオ・オオツキのマシン。豊富な資金力を背景に最新技術を惜しみなく投入した機体だが、操縦技術はやや未熟。レースでの経験を積みながら日々成長している。' 
+      },
+      { 
+        name: 'THUNDER OVAL',
+        pilot: 'John Derek',
+        specs: { 
+          body: 'B', 
+          boost: 'D', 
+          grip: 'B',
+          // 詳細スペック
+          topSpeed: 'B',
+          boostSpeed: 'C',
+          boostDuration: 'B',
+          bodyStrength: 'B',
+          cornering: 'B',
+          balance: 'A+',
+          acceleration: 'D'
+        }, 
+        description: '安定感に優れた堅実派マシン。加速は鈍いが一度勢いに乗ると強い。ジョン・デレクは元エンジニアで自らマシンを設計・開発。その経験と知識を活かし、理論値ではなく実戦での使いやすさを重視した設計が特徴。サーキットの解析力と戦略的レース運びに長けている。' 
+      }
     ]
   },
    
@@ -517,7 +719,7 @@ export const gameData: Game[] = [
   {
     id: 5,
     title: 'F-ZERO: GP Legend',
-    leagues: ['Bronze Cup', 'Silver Cup', 'Gold Cup'],
+    leagues: ['Bronze', 'Silver', 'Gold', 'Platinum'],
     machines: [
       {
         name: 'RED GAZELLE',
@@ -637,7 +839,7 @@ export const gameData: Game[] = [
         name: 'KING METEOR',
         pilot: 'Super Arrow',
         specs: { body: 'E', boost: 'B', grip: 'B' },
-        description: '正義のヒーローが乗る王者の隕石。紙装甲だが素直な挙動で初心者も扱いやすい。'
+        description: '正義のヒーローが乗る王者の隕石。車体は脆いが挙動は素直。ライバル車との接触を避ければ高順位も狙える。'
       },
       {
         name: 'QUEEN METEOR',
@@ -702,7 +904,7 @@ export const gameData: Game[] = [
       { name: 'DRAGON BIRD',      pilot: 'Rick Wheeler',              specs: { body: 'B', boost: 'B', grip: 'B' }, description: '銀河警察の新鋭機。全性能が平均以上でクセがなく操作しやすい。' },
       { name: 'ELEGANCE LIBERTY', pilot: 'Lucy Liberty',              specs: { body: 'C', boost: 'C', grip: 'A' }, description: '高加速とコーナリングに特化した女性用マシン。最高速は低め。' },
       { name: 'MOON SHADOW',      pilot: 'Misaki Haruka / Miss Killer', specs: { body: 'B', boost: 'C', grip: 'B' }, description: '謎多き暗黒レーサー。バランス型で実戦向きの性能。' },
-      { name: 'PANZER EMERALD',   pilot: 'Lisa Brilliant',            specs: { body: 'A', boost: 'C', grip: 'D' }, description: '重装甲＆高重量で体当たりが得意。反面、曲がりは鈍重。' }
+      { name: 'PANZER EMERALD',   pilot: 'Lisa Brilliant',            specs: { body: 'A', boost: 'C', grip: 'D' }, description: '重装甲＆高重量で体当たりが得意。反面、曲がりは鈍重。' },
     ]
   },
    
@@ -710,7 +912,7 @@ export const gameData: Game[] = [
   {
     id: 6,
     title: 'F-ZERO: Climax',
-    leagues: ['Bronze Cup', 'Silver Cup', 'Gold Cup', 'Platinum Cup'],
+    leagues: ['Bronze', 'Silver', 'Gold', 'Platinum'],
     machines: [
       // ■ GP Legend（ID 5）の全機体を展開
       {
@@ -932,7 +1134,7 @@ export const gameData: Game[] = [
   {
     id: 7,
     title: 'F-ZERO 99',
-    leagues: ['99 Player Mode'],
+    leagues: ['Knight', 'Queen', 'King', 'Ace', 'Miranight', 'Miraqueen', 'Miraking', 'Mirace'],
     machines: [
       { name: 'BLUE FALCON',  pilot: 'Captain Falcon', specs: { body: 'B', boost: 'B', grip: 'B' } },
       { name: 'GOLDEN FOX',   pilot: 'Dr. Stewart',    specs: { body: 'C', boost: 'A', grip: 'E' } },

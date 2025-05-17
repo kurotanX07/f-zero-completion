@@ -72,13 +72,13 @@ export function calculateGameAchievement(
   let rank3Count = 0;
   let totalClearCount = 0;
   
-  // 全コースでループ
+  // 総合順位を元に計算
   game.machines.forEach(machine => {
     game.leagues.forEach(league => {
       // 通常モード
-      const normalKey = `${game.id}-${machine.name}-${league}`;
-      if (clearData[normalKey]) {
-        const rank = clearData[normalKey].rank;
+      const overallKey = `${game.id}-${machine.name}-${league}-overall`;
+      if (clearData[overallKey]) {
+        const rank = clearData[overallKey].overallRank;
         if (rank === 1) {
           rank1Count++;
           rank2Count++;
@@ -91,16 +91,14 @@ export function calculateGameAchievement(
         } else if (rank === 3) {
           rank3Count++;
           totalClearCount++;
-        } else if (rank === 4) {
-          totalClearCount++;
         }
       }
       
       // リバースモードは、includeReverse が true の場合のみカウント
       if (includeReverse) {
-        const reverseKey = `${game.id}-${machine.name}-${league}-reverse`;
-        if (clearData[reverseKey]) {
-          const rank = clearData[reverseKey].rank;
+        const reverseOverallKey = `${game.id}-${machine.name}-${league}-reverse-overall`;
+        if (clearData[reverseOverallKey]) {
+          const rank = clearData[reverseOverallKey].overallRank;
           if (rank === 1) {
             rank1Count++;
             rank2Count++;
@@ -112,8 +110,6 @@ export function calculateGameAchievement(
             totalClearCount++;
           } else if (rank === 3) {
             rank3Count++;
-            totalClearCount++;
-          } else if (rank === 4) {
             totalClearCount++;
           }
         }
