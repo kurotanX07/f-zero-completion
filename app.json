@@ -19,22 +19,23 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourcompany.fzerotracker",
+      "bundleIdentifier": "com.fzerocomplete.tracker",
       "buildNumber": "1.0.0",
       "infoPlist": {
-        "NSUserTrackingUsageDescription": "このアプリは、より関連性の高い広告を表示するためにデバイス識別子を使用します。"
+        "NSUserTrackingUsageDescription": "このアプリは、より関連性の高い広告を表示するためにデバイス識別子を使用します。",
+        "NSCameraUsageDescription": "スクリーンショットを撮影するためにカメラへのアクセスが必要です。",
+        "NSPhotoLibraryUsageDescription": "ゲームの記録にスクリーンショットを保存するために写真ライブラリへのアクセスが必要です。"
       }
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#1E3A8A"
       },
-      "package": "com.yourcompany.fzerotracker",
+      "package": "com.fzerocomplete.tracker",
       "versionCode": 1,
       "permissions": [
         "CAMERA",
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE"
+        "READ_MEDIA_IMAGES"
       ]
     },
     "plugins": [
@@ -43,9 +44,27 @@
         {
           "ios": {
             "useFrameworks": "static"
+          },
+          "android": {
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34,
+            "buildToolsVersion": "34.0.0",
+            "kotlinVersion": "1.7.20",
+            "ndkVersion": "25.2.9519653"
           }
         }
-      ]
-    ]
+      ],
+      "expo-router",
+      "expo-sqlite"
+    ],
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f0a12635-0b6a-4c7f-87c9-c1ccf4946716"
+      }
+    },
+    "owner": "kurotanx07"
   }
 }

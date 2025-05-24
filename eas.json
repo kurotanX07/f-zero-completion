@@ -1,0 +1,40 @@
+{
+  "cli": {
+    "version": ">= 16.2.1",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {
+      "autoIncrement": true,
+      "prebuildCommand": "npx expo prebuild --platform android --clean && echo \"sdk.dir=${ANDROID_HOME}\" > android/local.properties && echo \"ndk.dir=${ANDROID_HOME}/ndk/${EXPO_PUBLIC_NDK_VERSION}\" >> android/local.properties",
+      "env": {
+        "KOTLIN_VERSION": "1.7.20",
+        "EXPO_PUBLIC_NDK_VERSION": "25.1.8937393",
+        "ANDROID_SDK_ROOT": "/opt/android/sdk",
+        "ANDROID_HOME": "/opt/android/sdk",
+        "JAVA_HOME": "/usr/lib/jvm/java-17-openjdk-amd64"
+      },
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleRelease",
+        "image": "ubuntu-22.04-jdk-17-ndk-r25b"
+      }
+    },
+    "local": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
